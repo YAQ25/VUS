@@ -46,11 +46,17 @@ library(prodlim)
 
 data(Melanoma)
 
-obsdata=Melanoma
+original=Melanoma
 
 #obsdata$sex1=ifelse(as.numeric(obsdata$sex)==1, 0, 1)
 
 #obsdata$ulcer1=ifelse(as.numeric(obsdata$ulcer)==1, 0, 1)
+
+folds=createFolds(1:nrow(original),k=2)
+
+obsdata=original[folds[[1]], ] # train
+
+test=original[folds[[2]], ]
 
 predicttime=2000
 
@@ -68,15 +74,15 @@ csc1=CSC(Hist(time, status)~sex+age+logthick+ulcer, data=obsdata, cause=1)
 
 csc2=CSC(Hist(time, status)~sex+age+logthick+ulcer, data=obsdata, cause=2)
 
-cscrisk1=predictRisk(csc1, obsdata[,c("sex","age","logthick","ulcer")], times=predicttime, cause=1)
+cscrisk1=predictRisk(csc1, test[,c("sex","age","logthick","ulcer")], times=predicttime, cause=1)
 
-cscrisk2=predictRisk(csc2, obsdata[,c("sex","age","logthick","ulcer")], times=predicttime, cause=2)
+cscrisk2=predictRisk(csc2, test[,c("sex","age","logthick","ulcer")], times=predicttime, cause=2)
 
 cscsurv=1-cscrisk1-cscrisk2
 
 \# data frame construction
 
-cscdata=data.frame(cbind(obsdata$time, obsdata$status, cscrisk1, cscrisk2, cscsurv))
+cscdata=data.frame(cbind(test$time, test$status, cscrisk1, cscrisk2, cscsurv))
 
 VUS(mydata=cscdata, predicttime=predicttime) # estimate VUS and its standard error
 
