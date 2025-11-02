@@ -44,6 +44,8 @@ library(survival)
 
 library(prodlim)
 
+library(caret)
+
 data(Melanoma)
 
 original=Melanoma
